@@ -1,0 +1,54 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(CUSTOMER)
+  isActive  Boolean  @default(true)
+  stores    Store[]
+  createdAt DateTime @default(now())
+}
+
+model Store {
+  id          String   @id @default(cuid())
+  name        String
+  description String?
+  address     String
+  isApproved  Boolean  @default(false)
+  owner       User     @relation(fields: [ownerId], references: [id])
+  ownerId     String
+  posts       Post[]
+  createdAt   DateTime @default(now())
+}
+
+model Post {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  imageUrl    String
+  type        PostType
+  isVisible   Boolean  @default(true)
+  store       Store    @relation(fields: [storeId], references: [id])
+  storeId     String
+  createdAt   DateTime @default(now())
+}
+
+enum Role {
+  ADMIN
+  OWNER
+  CUSTOMER
+}
+
+enum PostType {
+  NEW_ARRIVAL
+  SALE
+}
