@@ -32,6 +32,12 @@ export default function Navbar() {
                 Admin
               </Link>
             )}
+            <Link
+              href="/settings"
+              className="text-sm text-gray-600 hover:underline"
+            >
+              Settings
+            </Link>
             <button
               onClick={() => signOut()}
               className="text-sm bg-gray-100 px-3 py-1 rounded hover:bg-gray-200"
