@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 type Post = {
   id: string;
@@ -7,7 +8,7 @@ type Post = {
   imageUrl: string;
   type: string;
   createdAt: Date;
-  store: { name: string };
+  store: { id: string; name: string };
 };
 
 export default function PostCard({ post }: { post: Post }) {
@@ -31,7 +32,12 @@ export default function PostCard({ post }: { post: Post }) {
             {post.description}
           </p>
         )}
-        <p className="text-xs text-gray-400 mt-2">{post.store.name}</p>
+        <Link
+          href={`/stores/${post.store.id}`}
+          className="text-xs text-gray-400 mt-2 hover:underline"
+        >
+          {post.store.name}
+        </Link>
       </div>
     </div>
   );
