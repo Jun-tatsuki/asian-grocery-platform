@@ -12,6 +12,8 @@ export default function DashboardPage() {
   const [storeLoading, setStoreLoading] = useState(false);
   const [postLoading, setPostLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [posts, setPosts] = useState<any[]>([]);
+  const [editingPost, setEditingPost] = useState<any>(null);
 
   useEffect(() => {
     if (status === "unauthenticated") router.push("/login");
@@ -23,6 +25,7 @@ export default function DashboardPage() {
     const data = await res.json();
     setStore(data);
     setLoading(false);
+    if (data?.id) fetchPosts(data.id);
   }
 
   async function handleCreateStore(e: React.FormEvent<HTMLFormElement>) {
@@ -78,7 +81,36 @@ export default function DashboardPage() {
 
     setMessage("Post created successfully!");
     setPostLoading(false);
+    fetchPosts(store.id);
     (e.target as HTMLFormElement).reset();
+  }
+
+  async function fetchPosts(storeId: string) {
+    const res = await fetch(`/api/stores/${storeId}`);
+    const data = await res.json();
+    setPosts(data.posts || []);
+  }
+
+  async function handleDelete(postId: string) {
+    if (!confirm("Are you sure you want to delete this post?")) return;
+    await fetch(`/api/posts/${postId}`, { method: "DELETE" });
+    fetchPosts(store.id);
+  }
+
+  async function handleEdit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    await fetch(`/api/posts/${editingPost.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        title: formData.get("title"),
+        description: formData.get("description"),
+        type: formData.get("type"),
+      }),
+    });
+    setEditingPost(null);
+    fetchPosts(store.id);
   }
 
   if (loading) return <div className="p-8">Loading...</div>;
@@ -194,6 +226,83 @@ export default function DashboardPage() {
               {postLoading ? "Posting..." : "Create Post"}
             </button>
           </form>
+          <div className="mt-8">
+            <h3 className="font-medium mb-4">My Posts</h3>
+            {posts.length === 0 ? (
+              <p className="text-gray-400 text-sm">No posts yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {posts.map((post) => (
+                  <div key={post.id} className="border rounded-lg p-4">
+                    {editingPost?.id === post.id ? (
+                      <form onSubmit={handleEdit} className="space-y-3">
+                        <input
+                          name="title"
+                          defaultValue={post.title}
+                          required
+                          className="w-full border rounded px-3 py-2 text-sm"
+                        />
+                        <textarea
+                          name="description"
+                          defaultValue={post.description || ""}
+                          className="w-full border rounded px-3 py-2 text-sm"
+                          rows={2}
+                        />
+                        <select
+                          name="type"
+                          defaultValue={post.type}
+                          className="w-full border rounded px-3 py-2 text-sm"
+                        >
+                          <option value="NEW_ARRIVAL">New Arrival</option>
+                          <option value="SALE">Sale</option>
+                        </select>
+                        <div className="flex gap-2">
+                          <button
+                            type="submit"
+                            className="bg-green-600 text-white px-3 py-1 rounded text-sm hover:bg-green-700"
+                          >
+                            Save
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingPost(null)}
+                            className="bg-gray-100 px-3 py-1 rounded text-sm hover:bg-gray-200"
+                          >
+                            Cancel
+                          </button>
+                        </div>
+                      </form>
+                    ) : (
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <p className="font-medium text-sm">{post.title}</p>
+                          <p className="text-xs text-gray-500">
+                            {post.type === "NEW_ARRIVAL"
+                              ? "New Arrival"
+                              : "Sale"}
+                          </p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => setEditingPost(post)}
+                            className="bg-gray-100 px-3 py-1 rounded text-sm hover:bg-gray-200"
+                          >
+                            Edit
+                          </button>
+                          <button
+                            onClick={() => handleDelete(post.id)}
+                            className="bg-red-500 text-white px-3 py-1 rounded text-sm hover:bg-red-600"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
     </div>
