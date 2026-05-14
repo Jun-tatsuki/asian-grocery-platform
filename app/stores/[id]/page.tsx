@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import { notFound } from "next/navigation";
 import PostCard from "@/components/PostCard";
 
@@ -12,12 +13,18 @@ export default async function StorePage({
   const { id } = await params;
   const { tab } = await searchParams;
   const activeTab = tab === "sale" ? "SALE" : "NEW_ARRIVAL";
+  const session = await auth();
+  const userId = (session?.user as any)?.id;
 
   const store = await prisma.store.findUnique({
     where: { id, isApproved: true },
     include: {
       posts: {
         where: { isVisible: true, type: activeTab },
+        include: {
+          _count: { select: { likes: true } },
+          likes: userId ? { where: { userId } } : false,
+        },
         orderBy: { createdAt: "desc" },
       },
     },
@@ -65,7 +72,12 @@ export default async function StorePage({
           {store.posts.map((post) => (
             <PostCard
               key={post.id}
-              post={{ ...post, store: { id: store.id, name: store.name } }}
+              post={{
+                ...post,
+                store: { id: store.id, name: store.name },
+                likeCount: post._count.likes,
+                isLiked: (post.likes ?? []).length > 0,
+              }}
             />
           ))}
         </div>

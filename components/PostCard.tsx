@@ -1,5 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
+import LikeButton from "./LikeButton";
 
 type Post = {
   id: string;
@@ -9,6 +10,8 @@ type Post = {
   type: string;
   createdAt: Date;
   store: { id: string; name: string };
+  likeCount: number;
+  isLiked: boolean;
 };
 
 export default function PostCard({ post }: { post: Post }) {
@@ -19,6 +22,7 @@ export default function PostCard({ post }: { post: Post }) {
           src={post.imageUrl}
           alt={post.title}
           fill
+          sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover"
         />
       </div>
@@ -32,12 +36,19 @@ export default function PostCard({ post }: { post: Post }) {
             {post.description}
           </p>
         )}
-        <Link
-          href={`/stores/${post.store.id}`}
-          className="text-xs text-gray-400 mt-2 hover:underline"
-        >
-          {post.store.name}
-        </Link>
+        <div className="flex items-center justify-between mt-2">
+          <Link
+            href={`/stores/${post.store.id}`}
+            className="text-xs text-gray-400 hover:underline"
+          >
+            {post.store.name}
+          </Link>
+          <LikeButton
+            postId={post.id}
+            initialLiked={post.isLiked}
+            initialCount={post.likeCount}
+          />
+        </div>
       </div>
     </div>
   );

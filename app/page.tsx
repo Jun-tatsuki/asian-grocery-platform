@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { auth } from "@/auth";
 import PostCard from "@/components/PostCard";
 
 export default async function HomePage({
@@ -8,6 +9,8 @@ export default async function HomePage({
 }) {
   const { tab } = await searchParams;
   const activeTab = tab === "sale" ? "SALE" : "NEW_ARRIVAL";
+  const session = await auth();
+  const userId = (session?.user as any)?.id;
 
   const posts = await prisma.post.findMany({
     where: {
@@ -15,7 +18,11 @@ export default async function HomePage({
       isVisible: true,
       store: { isApproved: true },
     },
-    include: { store: true },
+    include: {
+      store: true,
+      _count: { select: { likes: true } },
+      likes: userId ? { where: { userId } } : false,
+    },
     orderBy: { createdAt: "desc" },
   });
 
@@ -54,7 +61,14 @@ export default async function HomePage({
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
           {posts.map((post) => (
-            <PostCard key={post.id} post={post} />
+            <PostCard
+              key={post.id}
+              post={{
+                ...post,
+                likeCount: post._count.likes,
+                isLiked: (post.likes ?? []).length > 0,
+              }}
+            />
           ))}
         </div>
       )}
