@@ -7,7 +7,7 @@ export default function Navbar() {
   const { data: session } = useSession();
 
   return (
-    <nav className="bg-white border-b px-6 py-4 flex items-center justify-between">
+    <nav className="border-b px-6 py-4 flex items-center justify-between">
       <Link href="/" className="text-xl font-bold text-green-700">
         Asian Grocery Hub
       </Link>
