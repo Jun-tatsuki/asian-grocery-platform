@@ -21,7 +21,7 @@ export default function ImageCarousel({ imageUrls }: { imageUrls: string[] }) {
         alt={`image ${current + 1}`}
         fill
         sizes="(max-width: 768px) 100vw, 50vw"
-        className="object-cover"
+        className="object-contain"
       />
 
       {imageUrls.length > 1 && (
