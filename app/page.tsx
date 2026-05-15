@@ -59,7 +59,7 @@ export default async function HomePage({
       {posts.length === 0 ? (
         <p className="text-center text-gray-400 mt-16">No posts yet.</p>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {posts.map((post) => (
             <PostCard
               key={post.id}
