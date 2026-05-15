@@ -55,18 +55,22 @@ export default function DashboardPage() {
     setMessage("");
 
     const formData = new FormData(e.currentTarget);
-    const file = formData.get("image") as File;
+    const files = formData.getAll("images") as File[];
 
-    // 1 Upload image to Cloudinary
-    const uploadData = new FormData();
-    uploadData.append("file", file);
-    const uploadRes = await fetch("/api/upload", {
-      method: "POST",
-      body: uploadData,
-    });
-    const { url } = await uploadRes.json();
+    // Upload all images to Cloudinary
+    const imageUrls: string[] = [];
+    for (const file of files) {
+      const uploadData = new FormData();
+      uploadData.append("file", file);
+      const uploadRes = await fetch("/api/upload", {
+        method: "POST",
+        body: uploadData,
+      });
+      const { url } = await uploadRes.json();
+      imageUrls.push(url);
+    }
 
-    // 2 Save post to DB with the image URL
+    // Save post to DB with all image URLs
     await fetch("/api/posts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -74,7 +78,7 @@ export default function DashboardPage() {
         title: formData.get("title"),
         description: formData.get("description"),
         type: formData.get("type"),
-        imageUrl: url,
+        imageUrls,
         storeId: store.id,
       }),
     });
@@ -208,15 +212,19 @@ export default function DashboardPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1">Photo</label>
+              <label className="block text-sm font-medium mb-1">
+                Photos (up to 5)
+              </label>
               <input
-                name="image"
+                name="images"
                 type="file"
                 accept="image/*"
+                multiple
                 required
                 className="w-full"
               />
             </div>
+
             {message && <p className="text-green-600 text-sm">{message}</p>}
             <button
               type="submit"

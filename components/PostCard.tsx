@@ -6,7 +6,7 @@ type Post = {
   id: string;
   title: string;
   description: string | null;
-  imageUrl: string;
+  imageUrls: string[];
   type: string;
   createdAt: Date;
   store: { id: string; name: string };
@@ -19,12 +19,17 @@ export default function PostCard({ post }: { post: Post }) {
     <div className="bg-white rounded-lg shadow overflow-hidden">
       <div className="relative h-48 w-full">
         <Image
-          src={post.imageUrl}
+          src={post.imageUrls[0]}
           alt={post.title}
           fill
           sizes="(max-width: 768px) 100vw, 33vw"
           className="object-cover"
         />
+        {post.imageUrls.length > 1 && (
+          <span className="absolute top-2 right-2 bg-black bg-opacity-60 text-white text-xs px-2 py-1 rounded">
+            +{post.imageUrls.length - 1}
+          </span>
+        )}
       </div>
       <div className="p-4">
         <span className="text-xs font-medium text-green-700 uppercase">
