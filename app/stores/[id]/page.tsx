@@ -74,6 +74,7 @@ export default async function StorePage({
               key={post.id}
               post={{
                 ...post,
+                createdAt: post.createdAt.toISOString(),
                 store: { id: store.id, name: store.name },
                 likeCount: post._count.likes,
                 isLiked: (post.likes ?? []).length > 0,

@@ -8,7 +8,7 @@ type Post = {
   description: string | null;
   imageUrls: string[];
   type: string;
-  createdAt: Date;
+  createdAt: string;
   store: { id: string; name: string };
   likeCount: number;
   isLiked: boolean;
@@ -29,12 +29,17 @@ export default function PostCard({ post }: { post: Post }) {
           </p>
         )}
         <div className="flex items-center justify-between mt-2">
-          <Link
-            href={`/stores/${post.store.id}`}
-            className="text-xs text-gray-400 hover:underline"
-          >
-            {post.store.name}
-          </Link>
+          <div>
+            <Link
+              href={`/stores/${post.store.id}`}
+              className="text-xs text-gray-400 hover:underline block"
+            >
+              {post.store.name}
+            </Link>
+            <span className="text-xs text-gray-300">
+              {new Date(post.createdAt).toLocaleDateString("en-CA")}
+            </span>
+          </div>
           <LikeButton
             postId={post.id}
             initialLiked={post.isLiked}

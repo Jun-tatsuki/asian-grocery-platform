@@ -65,6 +65,7 @@ export default async function HomePage({
               key={post.id}
               post={{
                 ...post,
+                createdAt: post.createdAt.toISOString(),
                 likeCount: post._count.likes,
                 isLiked: (post.likes ?? []).length > 0,
               }}
